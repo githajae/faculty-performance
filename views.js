@@ -1,5 +1,5 @@
 import { addTo, candidates, compareText, confirmedSources, groupBy, institutions, rankBy, research,
-  roleLabel, schoolComparison, series } from "./analysis.js";
+  roleLabel, schoolComparison, series, venueFilter } from "./analysis.js";
 import { actionText, bars, button, chart, checkbox, choices, csvButton, el, externalLink, format,
   grid, heatmap, hint, kpis, labeled, panel, select } from "./ui.js";
 
@@ -23,6 +23,7 @@ function mainField(model, counts) {
 
 export function schoolsView(model, filter, state) {
   const { domestic, byName, fieldRanks, domesticCounts, allowed } = institutions(model, filter);
+  const careerVenues = venueFilter(model, { ...filter, fields: [], areas: [], venues: [] });
   const names = schoolsInKorea(model);
   if (!names.length) return hint("국내 기관 데이터가 없습니다.");
   const selected = names.includes(state.school) ? state.school : domestic[0]?.name ?? names[0];
@@ -55,7 +56,7 @@ export function schoolsView(model, filter, state) {
       model.fields.findIndex(([key]) => key === b.target) || a.rank - b.rank || compareText(a.person, b.person));
 
     const career = new Set((model.institutionFacultyByName.get(name) ?? [])
-      .filter(([, , venue]) => filter.expanded || !model.venues.get(venue).next_tier).map(([, person]) => person));
+      .filter(([, , venue]) => careerVenues.has(venue)).map(([, person]) => person));
     const ages = [...career].map(person => model.personByName.get(person))
       .filter(person => person?.academic_age != null).sort((a, b) => a.academic_age - b.academic_age);
     const median = ages.length ? (ages[Math.floor((ages.length - 1) / 2)].academic_age + ages[Math.floor(ages.length / 2)].academic_age) / 2 : null;
