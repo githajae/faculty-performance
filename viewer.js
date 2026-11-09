@@ -1,7 +1,7 @@
-import { compareText, prepare } from "./analysis.js";
-import { readSnapshot } from "./snapshot.js";
-import { button, checkbox, choices, el, hint, labeled } from "./ui.js";
-import { compareView, makeResearch, peopleView, schoolComparisonView, schoolsView, searchView, statusView } from "./views.js";
+import { compareText, prepare } from "./analysis.js?v=20261109.1";
+import { readSnapshot } from "./snapshot.js?v=20261109.1";
+import { button, checkbox, choices, el, hint, labeled } from "./ui.js?v=20261109.1";
+import { compareView, makeResearch, peopleView, schoolComparisonView, schoolsView, searchView, statusView } from "./views.js?v=20261109.1";
 
 const dashboard = document.querySelector("#dashboard");
 const edition = document.querySelector("#edition");

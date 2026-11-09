@@ -1,7 +1,7 @@
 import { addTo, candidates, compareText, confirmedSources, groupBy, institutions, rankBy, research,
-  roleLabel, schoolComparison, series, venueFilter } from "./analysis.js";
+  roleLabel, schoolComparison, series, venueFilter } from "./analysis.js?v=20261109.1";
 import { actionText, bars, button, chart, checkbox, choices, csvButton, el, externalLink, format,
-  grid, heatmap, hint, kpis, labeled, panel, select } from "./ui.js";
+  grid, heatmap, hint, kpis, labeled, panel, select } from "./ui.js?v=20261109.1";
 
 const top = (counts, limit = Infinity) => [...counts].sort((a, b) => b[1] - a[1] || compareText(a[0], b[0])).slice(0, limit);
 const schoolsInKorea = model => [...model.schools].filter(([, country]) => country === "kr").map(([name]) => name).sort(compareText);

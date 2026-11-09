@@ -13,3 +13,5 @@ FacultyPerformance 폴더에 `data/public.duckdb`, `data/pii.duckdb`, `src/fp/`�
 스크립트는 원본 Mac의 기존 Keychain 키를 사용합니다. 서버에서 `~/.config/faculty-performance/pii.key`에 보관하는 경우 파일 권한을 `600`으로 설정합니다. 기존 키를 화면에 표시하지 않고 입력하려면 `--ask-db-key`를 붙입니다. 이미 내보낸 폴더가 있으면 `--output-dir faculty-pages-export-new`처럼 새 폴더를 지정합니다.
 
 `faculty-pages-export/faculty-performance.json.gz`를 배포 담당자에게 보냅니다. 배포 담당자가 저장소 루트의 동명 파일을 교체하면 같은 주소에서 새 스냅샷이 열립니다. gzip은 압축 형식이며, GitHub에 올린 스냅샷은 누구나 내려받을 수 있습니다.
+
+브라우저 스크립트를 수정해 배포할 때는 `index.html`, `viewer.js`, `views.js`의 스크립트 URL에 붙은 `v` 값을 모두 새 값으로 바꿉니다. 이전에 방문한 브라우저에서도 새 모듈을 받도록 하기 위한 설정입니다.
