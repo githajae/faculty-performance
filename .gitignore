@@ -1,0 +1,6 @@
+__pycache__/
+faculty-pages-export*/
+*.duckdb
+*.duckdb.wal
+*.key
+*.share-link.txt
