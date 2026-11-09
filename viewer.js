@@ -1,26 +1,11 @@
 import { compareText, prepare } from "./analysis.js";
-import { unlockSnapshot } from "./snapshot.js";
+import { readSnapshot } from "./snapshot.js";
 import { button, checkbox, choices, el, hint, labeled } from "./ui.js";
 import { compareView, makeResearch, peopleView, schoolComparisonView, schoolsView, searchView, statusView } from "./views.js";
 
-const gate = document.querySelector("#gate");
 const dashboard = document.querySelector("#dashboard");
 const edition = document.querySelector("#edition");
-const status = document.querySelector("#gate-status");
-const form = document.querySelector("#unlock-form");
-const keyInput = document.querySelector("#share-key");
-const fileInput = document.querySelector("#snapshot-file");
-const lockButton = document.querySelector("#lock");
-const openButton = form.querySelector("button");
-const lookupKey = value => {
-  const text = value.trim();
-  if (/^[A-Za-z0-9_-]{43}$/.test(text)) return text;
-  try {
-    return new URLSearchParams(new URL(text).hash.slice(1)).get("key");
-  } catch {
-    return null;
-  }
-};
+const status = document.querySelector("#loading");
 
 function mountDashboard(model) {
   const state = {
@@ -112,70 +97,21 @@ function mountDashboard(model) {
   render();
 }
 
-function lock() {
-  dashboard.replaceChildren();
-  dashboard.hidden = true;
-  gate.hidden = false;
-  lockButton.hidden = true;
-  edition.textContent = "암호화된 연구 실적 대시보드";
-  form.reset();
-  status.textContent = "대시보드를 닫았습니다.";
-  keyInput.focus();
-  window.scrollTo(0, 0);
-}
-
-let opening = false;
-async function open(shareKey) {
-  if (opening) return;
-  if (!shareKey) {
-    status.textContent = "열람 키가 포함된 공유 링크 또는 열람 키를 입력해 주세요.";
-    return;
-  }
-  opening = true;
-  openButton.disabled = true;
-  status.textContent = "스냅샷을 불러오는 중입니다.";
-  keyInput.value = "";
+async function open() {
   try {
-    const file = fileInput.files[0];
-    if (file && file.size > 95 * 1024 * 1024) throw new Error("스냅샷 파일이 너무 큽니다.");
-    let bytes;
-    if (file) {
-      bytes = await file.arrayBuffer();
-    } else {
-      const response = await fetch("./faculty-performance.snapshot", { cache: "no-store", credentials: "omit", redirect: "error" });
-      if (response.status === 404) throw new Error("게시된 스냅샷이 없습니다. 암호화 스냅샷 파일을 직접 열 수 있습니다.");
-      if (!response.ok) throw new Error("스냅샷을 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.");
-      bytes = await response.arrayBuffer();
-    }
-    status.textContent = "브라우저에서 스냅샷을 복호화하는 중입니다.";
-    const snapshot = await unlockSnapshot(bytes, shareKey);
+    const response = await fetch("./faculty-performance.json.gz", { cache: "no-cache", credentials: "omit" });
+    if (!response.ok) throw new Error("Snapshot download failed");
+    const snapshot = await readSnapshot(response.body);
     mountDashboard(prepare(snapshot));
     const timestamp = new Date(snapshot.exportedAt);
     edition.textContent = Number.isNaN(timestamp.getTime()) ? "스냅샷" :
       `스냅샷 · ${timestamp.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}`;
-    gate.hidden = true;
     dashboard.hidden = false;
-    lockButton.hidden = false;
-    const heading = dashboard.querySelector("h1");
-    heading.tabIndex = -1;
-    heading.focus();
-  } catch (error) {
+    status.hidden = true;
+  } catch {
     dashboard.replaceChildren();
-    status.textContent = error.message || "스냅샷을 열 수 없습니다.";
-  } finally {
-    opening = false;
-    openButton.disabled = false;
+    status.textContent = "대시보드를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.";
   }
 }
 
-form.addEventListener("submit", event => {
-  event.preventDefault();
-  open(lookupKey(keyInput.value));
-});
-lockButton.addEventListener("click", lock);
-
-const fragment = new URLSearchParams(window.location.hash.slice(1));
-if (fragment.has("key")) {
-  history.replaceState(null, "", window.location.pathname + window.location.search);
-  open(fragment.get("key"));
-}
+open();
